@@ -1,13 +1,33 @@
-import React from 'react'
+import React from 'react';
 
-function Pagination({handlePrev,handleNext,pageNo}) {
+function Pagination({ handlePrev, handleNext, pageNo }) {
   return (
-    <div className='bg-gray-400 p-4 mt-8 flex justify-center font-bold'>
-        <div onClick={handlePrev} className='px-8 hover:cursor-pointer'><i class="fa-solid fa-arrow-left"></i></div>
-        <div>{pageNo}</div>
-        <div onClick={handleNext} className='px-8 hover:cursor-pointer'><i class="fa-solid fa-arrow-right"></i></div>
+    <div className="flex items-center justify-center mt-10 space-x-6">
+      {/* Previous Button */}
+      <button
+        onClick={handlePrev}
+        className="flex items-center px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={pageNo === 1}
+      >
+        <i className="fa-solid fa-arrow-left mr-2"></i>
+        Prev
+      </button>
+
+      {/* Page Number */}
+      <div className="px-6 py-2 bg-white border rounded-lg shadow font-semibold text-gray-700">
+        Page {pageNo}
+      </div>
+
+      {/* Next Button */}
+      <button
+        onClick={handleNext}
+        className="flex items-center px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition duration-200 shadow-sm hover:shadow-md"
+      >
+        Next
+        <i className="fa-solid fa-arrow-right ml-2"></i>
+      </button>
     </div>
-  )
+  );
 }
 
-export default Pagination
+export default Pagination;

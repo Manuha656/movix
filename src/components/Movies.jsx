@@ -22,7 +22,7 @@ function Movies({wl,handleaddWl,handleremWl}) {
   }
 
   useEffect(()=>{
-    axios.get(`https://api.themoviedb.org/3/movie/popular?api_key=ead790cb69cd3b627116411f17647ba3&language=en-US&page=${pageNo}`).then(function(res){
+    axios.get(`https://api.themoviedb.org/3/movie/top_rated?api_key=ead790cb69cd3b627116411f17647ba3&language=en-US&page=${pageNo}`).then(function(res){
       setMovies(res.data.results)
     })
   },[pageNo])
