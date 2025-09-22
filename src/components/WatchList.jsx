@@ -109,68 +109,84 @@ function WatchList({ wl, setWl, handleremWl }) {
       </div>
 
       {/* Movies Table */}
-      <div className="rounded-lg overflow-hidden border border-gray-200 shadow-md m-8">
-        <table className="w-full text-gray-700 text-center">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-3">Name</th>
-              <th className="p-3 flex justify-center items-center space-x-2">
-                <span
-                  onClick={sortInc}
-                  className="hover:cursor-pointer text-gray-500 hover:text-blue-600"
-                >
-                  <i className="fa-solid fa-arrow-up"></i>
-                </span>
-                <span>Ratings</span>
-                <span
-                  onClick={sortDec}
-                  className="hover:cursor-pointer text-gray-500 hover:text-blue-600"
-                >
-                  <i className="fa-solid fa-arrow-down"></i>
-                </span>
-              </th>
-              <th className="p-3">Popularity</th>
-              <th className="p-3">Genre</th>
-              <th className="p-3">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {wl
-              .filter((movieObj) => {
-                if (curG === "All Genres") return true;
-                return genreids[movieObj.genre_ids[0]] === curG;
-              })
-              .filter((movieObj) => {
-                return movieObj.title
-                  .toLowerCase()
-                  .includes(search.toLowerCase());
-              })
-              .map((movieObj) => (
-                <tr
-                  className="border-b hover:bg-gray-50 transition"
-                  key={movieObj.id}
-                >
-                  <td className="flex items-center px-5 py-5">
-                    <img
-                      className="h-[6rem] w-[10rem] rounded-lg object-cover"
-                      src={`https://image.tmdb.org/t/p/original/${movieObj.backdrop_path}`}
-                      alt={movieObj.title}
-                    />
-                    <div className="mx-5 font-semibold">{movieObj.title}</div>
-                  </td>
-                  <td>{movieObj.vote_average}</td>
-                  <td>{movieObj.popularity}</td>
-                  <td>{genreids[movieObj.genre_ids[0]]}</td>
-                  <td
-                    onClick={() => handleremWl(movieObj)}
-                    className="text-red-600 hover:text-red-800 font-bold hover:cursor-pointer"
+      <div className="rounded-lg overflow-hidden border border-gray-200 shadow-md m-4">
+        {/* Scrollable wrapper for mobile */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-gray-700 text-center">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-3">Name</th>
+                <th className="p-3 flex justify-center items-center space-x-2">
+                  <span
+                    onClick={sortInc}
+                    className="hover:cursor-pointer text-gray-500 hover:text-blue-600"
                   >
-                    Delete
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+                    <i className="fa-solid fa-arrow-up"></i>
+                  </span>
+                  <span>Ratings</span>
+                  <span
+                    onClick={sortDec}
+                    className="hover:cursor-pointer text-gray-500 hover:text-blue-600"
+                  >
+                    <i className="fa-solid fa-arrow-down"></i>
+                  </span>
+                </th>
+                <th className="p-3">Popularity</th>
+                <th className="p-3">Genre</th>
+                <th className="p-3">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {wl
+                .filter((movieObj) => {
+                  if (curG === "All Genres") return true;
+                  return genreids[movieObj.genre_ids[0]] === curG;
+                })
+                .filter((movieObj) =>
+                  movieObj.title
+                    .toLowerCase()
+                    .includes(search.toLowerCase())
+                )
+                .map((movieObj) => (
+                  <tr
+                    className="border-b hover:bg-gray-50 transition"
+                    key={movieObj.id}
+                  >
+                    {/* Movie Name + Poster */}
+                    <td className="flex items-center px-5 py-5 min-w-[200px]">
+                      <img
+                        className="h-[5rem] w-[8rem] rounded-lg object-cover"
+                        src={`https://image.tmdb.org/t/p/original/${movieObj.backdrop_path}`}
+                        alt={movieObj.title}
+                      />
+                      <div className="mx-3 font-semibold text-sm sm:text-base">
+                        {movieObj.title}
+                      </div>
+                    </td>
+
+                    {/* Ratings */}
+                    <td className="min-w-[100px]">{movieObj.vote_average}</td>
+
+                    {/* Popularity */}
+                    <td className="min-w-[100px]">{movieObj.popularity}</td>
+
+                    {/* Genre */}
+                    <td className="min-w-[120px]">
+                      {genreids[movieObj.genre_ids[0]]}
+                    </td>
+
+                    {/* Action */}
+                    <td
+                      onClick={() => handleremWl(movieObj)}
+                      className="text-red-600 hover:text-red-800 font-bold hover:cursor-pointer min-w-[80px]"
+                    >
+                      Delete
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
