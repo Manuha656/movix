@@ -1,6 +1,7 @@
 import React from "react";
 
 function MovieCard({ poster_path, name, handleaddWl, movieObj, handleremWl, wl }) {
+  // check if movie is already in watchlist
   function doesContain(movieObj) {
     return wl.some((m) => m.id === movieObj.id);
   }
@@ -9,12 +10,16 @@ function MovieCard({ poster_path, name, handleaddWl, movieObj, handleremWl, wl }
     <div
       className="
         relative 
-        w-[200px] h-[300px] 
-        sm:w-[180px] sm:h-[270px] 
-        xs:w-[150px] xs:h-[230px] 
-        rounded-2xl overflow-hidden 
-        shadow-lg group cursor-pointer 
-        mx-auto
+        w-[200px] h-[300px]             /* default desktop size */
+        sm:w-[180px] sm:h-[270px]       /* tablets */
+        xs:w-[150px] xs:h-[230px]       /* small mobiles */
+        rounded-2xl 
+        overflow-hidden 
+        shadow-lg 
+        group 
+        cursor-pointer 
+        mx-auto                          /* center align */
+        mb-4                             /* spacing between cards on mobile */
       "
     >
       {/* Movie Poster */}

@@ -5,189 +5,183 @@ function WatchList({ wl, setWl, handleremWl }) {
   const [search, setSearch] = useState("");
   const [genrelist, setGl] = useState(["All Genres"]);
   const [curG, setCg] = useState("All Genres");
-  const [showArrows, setShowArrows] = useState(false);
   const genreRef = useRef();
 
-  const handleSearch = (e) => setSearch(e.target.value);
-  const handleFilter = (genre) => setCg(genre);
-
-  const sortInc = () => {
-    let sortedInc = wl.sort((movieA, movieB) => {
-      return movieA.vote_average - movieB.vote_average;
-    });
-    setWl([...sortedInc]);
-  };
-
-  const sortDec = () => {
-    let sortedDec = wl.sort((movieA, movieB) => {
-      return movieB.vote_average - movieA.vote_average;
-    });
-    setWl([...sortedDec]);
-  };
-
-  const scrollLeft = () => {
-    genreRef.current.scrollBy({ left: -200, behavior: "smooth" });
-  };
-
-  const scrollRight = () => {
-    genreRef.current.scrollBy({ left: 200, behavior: "smooth" });
-  };
-
   useEffect(() => {
-    let temp = wl.map((movieObj) => {
-      return genreids[movieObj.genre_ids[0]];
-    });
+    let temp = wl.map((movieObj) => genreids[movieObj.genre_ids[0]]);
     temp = new Set(temp);
     setGl(["All Genres", ...temp]);
   }, [wl]);
 
-  // Check if genres overflow
-  useEffect(() => {
-    const checkOverflow = () => {
-      if (genreRef.current) {
-        setShowArrows(
-          genreRef.current.scrollWidth > genreRef.current.clientWidth
-        );
-      }
-    };
-    checkOverflow();
-    window.addEventListener("resize", checkOverflow);
-    return () => window.removeEventListener("resize", checkOverflow);
-  }, [genrelist]);
+  const handleFilter = (genre) => setCg(genre);
+
+  const sortInc = () => {
+    let sorted = [...wl].sort((a, b) => a.vote_average - b.vote_average);
+    setWl(sorted);
+  };
+
+  const sortDec = () => {
+    let sorted = [...wl].sort((a, b) => b.vote_average - a.vote_average);
+    setWl(sorted);
+  };
+
+  let filteredMovies = wl.filter((movieObj) => {
+    return (
+      (curG === "All Genres" ||
+        genreids[movieObj.genre_ids[0]] === curG) &&
+      movieObj.title.toLowerCase().includes(search.toLowerCase())
+    );
+  });
 
   return (
     <div className="p-6">
-      {/* Genre Filter with Arrows */}
-      <div className="relative flex items-center mb-6">
-        {showArrows && (
-          <button
-            onClick={scrollLeft}
-            className="absolute left-0 z-10 bg-white shadow rounded-full p-2 hover:bg-gray-100"
-          >
-            <i className="fa-solid fa-chevron-left"></i>
-          </button>
-        )}
-
-        <div
-          ref={genreRef}
-          className="flex space-x-4 overflow-x-auto scrollbar-hide px-10 py-2 w-full"
-        >
-          {genrelist.map((genre) => (
-            <button
-              key={genre}
-              onClick={() => handleFilter(genre)}
-              className={`flex-shrink-0 px-5 py-2 rounded-full font-semibold transition-all duration-300 ${
-                curG === genre
-                  ? "bg-blue-600 text-white shadow"
-                  : "bg-gray-300 text-gray-700 hover:bg-blue-200"
-              }`}
-            >
-              {genre}
-            </button>
-          ))}
-        </div>
-
-        {showArrows && (
-          <button
-            onClick={scrollRight}
-            className="absolute right-0 z-10 bg-white shadow rounded-full p-2 hover:bg-gray-100"
-          >
-            <i className="fa-solid fa-chevron-right"></i>
-          </button>
-        )}
-      </div>
-
-      {/* Search Bar */}
-      <div className="flex justify-center my-4">
+      {/* Search & Genre Row */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
         <input
           type="text"
-          onChange={handleSearch}
           value={search}
-          placeholder="Search movies"
-          className="h-[3rem] w-[18rem] px-4 rounded-lg border border-gray-300 bg-gray-100 outline-none focus:ring-2 focus:ring-blue-400"
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search your watchlist..."
+          className="px-4 py-2 rounded-xl border w-full sm:w-1/2 focus:outline-none focus:ring-2 focus:ring-pink-400"
         />
+        <select
+          ref={genreRef}
+          value={curG}
+          onChange={(e) => handleFilter(e.target.value)}
+          className="px-4 py-2 rounded-xl border w-full sm:w-1/3 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        >
+          {genrelist.map((genre, idx) => (
+            <option key={idx} value={genre}>
+              {genre}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Movies Table */}
-      <div className="rounded-lg overflow-hidden border border-gray-200 shadow-md m-4">
-        {/* Scrollable wrapper for mobile */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-gray-700 text-center">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-3">Name</th>
-                <th className="p-3 flex justify-center items-center space-x-2">
-                  <span
-                    onClick={sortInc}
-                    className="hover:cursor-pointer text-gray-500 hover:text-blue-600"
-                  >
-                    <i className="fa-solid fa-arrow-up"></i>
-                  </span>
-                  <span>Ratings</span>
-                  <span
-                    onClick={sortDec}
-                    className="hover:cursor-pointer text-gray-500 hover:text-blue-600"
-                  >
-                    <i className="fa-solid fa-arrow-down"></i>
-                  </span>
-                </th>
-                <th className="p-3">Popularity</th>
-                <th className="p-3">Genre</th>
-                <th className="p-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {wl
-                .filter((movieObj) => {
-                  if (curG === "All Genres") return true;
-                  return genreids[movieObj.genre_ids[0]] === curG;
-                })
-                .filter((movieObj) =>
-                  movieObj.title
-                    .toLowerCase()
-                    .includes(search.toLowerCase())
-                )
-                .map((movieObj) => (
-                  <tr
-                    className="border-b hover:bg-gray-50 transition"
-                    key={movieObj.id}
-                  >
-                    {/* Movie Name + Poster */}
-                    <td className="flex items-center px-5 py-5 min-w-[200px]">
-                      <img
-                        className="h-[5rem] w-[8rem] rounded-lg object-cover"
-                        src={`https://image.tmdb.org/t/p/original/${movieObj.backdrop_path}`}
-                        alt={movieObj.title}
-                      />
-                      <div className="mx-3 font-semibold text-sm sm:text-base">
-                        {movieObj.title}
-                      </div>
-                    </td>
-
-                    {/* Ratings */}
-                    <td className="min-w-[100px]">{movieObj.vote_average}</td>
-
-                    {/* Popularity */}
-                    <td className="min-w-[100px]">{movieObj.popularity}</td>
-
-                    {/* Genre */}
-                    <td className="min-w-[120px]">
-                      {genreids[movieObj.genre_ids[0]]}
-                    </td>
-
-                    {/* Action */}
-                    <td
-                      onClick={() => handleremWl(movieObj)}
-                      className="text-red-600 hover:text-red-800 font-bold hover:cursor-pointer min-w-[80px]"
+      {/* Empty Watchlist */}
+      {wl.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-500">
+          <span className="text-6xl mb-4">🎬</span>
+          <h2 className="text-xl font-semibold mb-2">
+            Your Watchlist is Empty
+          </h2>
+          <p className="mb-4 text-gray-400">
+            Start adding movies to keep track of what you want to watch!
+          </p>
+          <a
+            href="/"
+            className="px-5 py-2 bg-gradient-to-r from-pink-500 to-indigo-500 text-white rounded-xl shadow-md hover:scale-105 transition"
+          >
+            Explore Movies
+          </a>
+        </div>
+      ) : filteredMovies.length === 0 ? (
+        // Search not found
+        <div className="flex flex-col items-center justify-center h-[50vh] text-center text-gray-500">
+          <span className="text-6xl mb-4">🔍</span>
+          <h2 className="text-lg font-semibold mb-2">No Movies Found</h2>
+          <p className="mb-4 text-gray-400">
+            Try changing your search or filter.
+          </p>
+          <button
+            onClick={() => setSearch("")}
+            className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-xl shadow-md hover:scale-105 transition"
+          >
+            Reset Search
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Table for desktop */}
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-3 text-left">Poster</th>
+                  <th className="p-3 text-left">Title</th>
+                  <th className="p-3 text-left">Genre</th>
+                  <th className="p-3 text-left flex items-center gap-2">
+                    Rating
+                    <button
+                      onClick={sortInc}
+                      className="text-gray-500 hover:text-blue-600"
                     >
-                      Delete
+                      <i className="fa-solid fa-arrow-up"></i>
+                    </button>
+                    <button
+                      onClick={sortDec}
+                      className="text-gray-500 hover:text-blue-600"
+                    >
+                      <i className="fa-solid fa-arrow-down"></i>
+                    </button>
+                  </th>
+                  <th className="p-3 text-left">Popularity</th>
+                  <th className="p-3 text-left">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredMovies.map((movie) => (
+                  <tr key={movie.id} className="border-b hover:bg-gray-50">
+                    <td className="p-3">
+                      <img
+                        src={`https://image.tmdb.org/t/p/w500/${movie.backdrop_path}`}
+                        alt={movie.title}
+                        className="w-32 h-20 object-cover rounded-lg"
+                      />
+                    </td>
+                    <td className="p-3 font-medium">{movie.title}</td>
+                    <td className="p-3">{genreids[movie.genre_ids[0]]}</td>
+                    <td className="p-3">{movie.vote_average}</td>
+                    <td className="p-3">{movie.popularity.toFixed(0)}</td>
+                    <td className="p-3">
+                      <button
+                        onClick={() => handleremWl(movie)}
+                        className="px-3 py-1 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
+                      >
+                        Remove
+                      </button>
                     </td>
                   </tr>
                 ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Stacked cards for mobile */}
+          <div className="sm:hidden flex flex-col gap-4">
+            {filteredMovies.map((movie) => (
+              <div
+                key={movie.id}
+                className="bg-white rounded-xl shadow-md overflow-hidden"
+              >
+                <img
+                  src={`https://image.tmdb.org/t/p/w500/${movie.backdrop_path}`}
+                  alt={movie.title}
+                  className="w-full h-64 object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold mb-1">{movie.title}</h3>
+                  <p className="text-sm text-gray-500 mb-2">
+                    {genreids[movie.genre_ids[0]]}
+                  </p>
+                  <p className="text-sm mb-1">
+                    ⭐ Rating: {movie.vote_average}
+                  </p>
+                  <p className="text-sm mb-3">
+                    🔥 Popularity: {movie.popularity.toFixed(0)}
+                  </p>
+                  <button
+                    onClick={() => handleremWl(movie)}
+                    className="px-4 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
